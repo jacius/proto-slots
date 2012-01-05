@@ -95,7 +95,7 @@ define the following methods:
 
 The following keyword args are valid for this strategy:
 
-* :base [default: base]
+* :base
 
   Name of the function to call on the object to get its base object.
   This arg is required!
@@ -155,7 +155,7 @@ define the following methods (with example for a slot named items):
 
 The following keyword args are valid for this strategy:
 
-* :base [default: base]
+* :base
 
   Name of the function to call on the object to get its base object.
   This arg is required!
