@@ -17,11 +17,11 @@ commonly known elsewhere as the "prototype").
 
 ## Usage ##
 
-First, you should either use the proto-slots package or import the
-def-proto-slots symbol, e.g. in your defpackage:
+First, you should import the def-proto-slots symbol, e.g. in your
+defpackage:
 
     (defpackage ...
-     (:use :proto-slots))
+     (:import-from :proto-slots def-proto-slots))
 
 Later, after you have defined your class using defclass, use the
 def-proto-slots macro to define the prototypal accessors:
