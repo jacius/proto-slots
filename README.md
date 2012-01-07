@@ -68,12 +68,31 @@ Each strategy implements a different style of inheritance:
 * :simple
 
   The slot holds any value. When it is nil, the value is inherited
-  from the base object.
+  from the base object. This strategy accepts the following keyword
+  arguments:
+
+  * :base - Func name to get the base object. Required!
+  * :accessor - Easy way to specify func name for reader and writer.
+  * :reader - Func name to get slot value, with inheritance.
+  * :own-reader - Func name to get slot value, no inheritance.
+  * :writer - Func name to set slot value.
 
 * :unique-merge
 
   The slot holds a list, which is merged with the base object's list
   such that all items are unique (according to the test functions).
+  This strategy accepts the following keyword arguments:
+
+  * :base - Func name to get the base object. Required!
+  * :accessor - Easy way to specify func name for reader and writer.
+  * :reader - Func name to get slot value, with inheritance.
+  * :own-reader - Func name to get slot value, no inheritance.
+  * :writer - Func name to set slot value.
+  * :test - Func to test whether two items match. Default #'eql.
+  * :key - Func to call on items before testing for match.
+  * :finder - Func name to find matching item, with inheritance.
+  * :own-finder - Func name to find matching item, no inheritance.
+  * :adder - Func name to add an item to the list.
 
 Each strategy is described in more detail below.
 
@@ -85,13 +104,6 @@ inherits the value from the base object (if there is one). The base
 object might inherit from its own base, so the chain of inheritance
 will be followed until a non-nil value is found, or until an object in
 the chain has no base.
-
-The simple inheritance strategy may (depending on the keyword args)
-define the following methods:
-
-* {the value of :reader}
-* {the value of :own-reader}
-* {the value of :writer}
 
 The following keyword args are valid for this strategy:
 
@@ -145,16 +157,6 @@ Unique merge inheritance means that the slot value is a list, and it
 inherits from the base object's list every items that does not match
 any item in the object's own list. See the description for :reader
 below for details about how a match is checked.
-
-The union inheritance strategy may (depending on the keyword args)
-define the following methods:
-
-* {the value of :reader}
-* {the value of :own-reader}
-* {the value of :writer}
-* {the value of :finder}
-* {the value of :own-finder}
-* {the value of :adder}
 
 The following keyword args are valid for this strategy:
 
