@@ -82,9 +82,10 @@
      `(%proto-method ,reader ((object ,class))
           ,(format nil "Return the object's ~(~A~) list, including any inherited from the object's ~(~A~)." reader base)
         (let ((b (,base object)))
-          (if b (union (,reader b) (,own-reader object)
+          (if b (union (,reader b)
+                       (slot-value object ',slot-name)
                        :key ,key :test ,test)
-              (,own-reader object)))))
+              (slot-value object ',slot-name)))))
 
    (when writer
      `(%proto-method ,writer (value (object ,class))
@@ -92,24 +93,25 @@
         (setf (slot-value object ',slot-name) value)))
 
    (when own-finder
-     `(%proto-method ,own-finder ((object ,class) name)
+     `(%proto-method ,own-finder ((object ,class) query)
           ,(format nil "Find and return the first matching item in the object's own ~(~A~) list, NOT including those inherited from the object's ~(~A~). Return nil if there is no match." reader base)
-        (find name (,own-reader object)
+        (find query (slot-value object ',slot-name)
               :key ,key :test ,test)))
 
    (when finder
-     `(%proto-method ,finder ((object ,class) name)
+     `(%proto-method ,finder ((object ,class) query)
           ,(format nil "Find and return the first matching item from the object's ~(~A~) list, including those inherited from the object's ~(~A~). Return nil if there is no match." reader base)
-        (find name (,reader object)
-              :key ,key :test ,test)))
+        (or (find query (slot-value object ',slot-name)
+                  :key ,key :test ,test)
+            (,finder (,base object) query))))
 
    (when adder
-     `(%proto-method ,adder ((object ,class) item)
+     `(%proto-method ,adder ((object ,class) new-item)
           ,(format nil "Add the given item to the object's own ~(~A~) reader, NOT including those inherited from the object's ~(~A~). If the list already contains an item that matches the given item, the existing item will be removed before adding the given item." reader base)
-        (funcall #',writer
-                 (union (,own-reader object) (list item)
-                        :key ,key :test ,test)
-                 object)))))
+        (setf (slot-value object ',slot-name)
+              (union (slot-value object ',slot-name)
+                     (list new-item)
+                     :key ,key :test ,test))))))
 
 
 ;;;;;;;;;;
