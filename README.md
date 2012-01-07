@@ -90,7 +90,7 @@ The simple inheritance strategy may (depending on the keyword args)
 define the following methods:
 
 * {the value of :reader}
-* own-{the value of :reader}
+* {the value of :own-reader}
 * {the value of :writer}
 
 The following keyword args are valid for this strategy:
@@ -115,15 +115,16 @@ The following keyword args are valid for this strategy:
   the base object's own base object, and so on down the inheritance
   chain).
 
-  Additionally, an "own" reader method is defined, which simply
-  returns the object's slot value, even if it is nil, without
-  checking inheritance. The "own" method's name is the reader
-  method's name prefixed with "own-". E.g. if the reader is #'name,
-  the own reader is #'own-name.
-
   The :reader arg takes precedence over the :accessor arg for the
-  purpose of naming the reader methods. If :reader is explicitly nil,
-  no reader (nor "own" reader) methods will be defined.
+  purpose of naming the reader method. If :reader is explicitly nil,
+  no reader method will be defined.
+
+* :own-reader [default: nil]
+
+  Name for the method to read the direct value of the slot, without
+  checking inheritance. This method always returns the value of the
+  slot, even if the value is nil. If :own-reader is nil (the default),
+  no own-reader method will be defined.
 
 * :writer [default: (setf {the value of :accessor})]
 
@@ -144,13 +145,13 @@ any item in the object's own list. See the description for :reader
 below for details about how a match is checked.
 
 The union inheritance strategy may (depending on the keyword args)
-define the following methods (with example for a slot named items):
+define the following methods:
 
 * {the value of :reader}
-* own-{the value of :reader}
+* {the value of :own-reader}
 * {the value of :writer}
 * {the value of :finder}
-* own-{the value of :finder}
+* {the value of :own-finder}
 * {the value of :adder}
 
 The following keyword args are valid for this strategy:
@@ -178,14 +179,15 @@ The following keyword args are valid for this strategy:
   provided for the :test and :key args are used to check whether
   items match, a la the standard #'union function.
 
-  Additionally, an "own" reader method is defined, which returns only
-  the object's own list, ignoring inheritance. The "own" method's
-  name is the reader method's name prefixed with "own-". E.g. if the
-  reader is named "items", the own reader is named "own-items".
-
   The :reader arg takes precedence over the :accessor arg for the
-  purpose of naming the reader methods. If :reader is explicitly nil,
-  no reader (nor own reader) methods will be defined.
+  purpose of naming the reader method. If :reader is explicitly nil,
+  no reader method will be defined.
+
+* :own-reader [default: nil]
+
+  Name for the method to read the direct value of the slot, without
+  checking inheritance. If :own-reader is nil (the default), no
+  own-reader method will be defined.
 
 * :writer [default: (setf {the value of :accessor})]
 
@@ -229,11 +231,12 @@ The following keyword args are valid for this strategy:
   other words, the query itself must match the result of calling the
   :key function on an item.
 
-  Additionally, an "own" finder method is defined, which searches
-  only the object's own list, ignoring inheritance. The "own"
-  method's name is the finder method's name prefixed with "own-".
-  E.g. if the finder is named "find-items", the own reader is named
-  "own-find-items".
+* :own-finder [default: nil]
+
+  Name for a method to find a matching item in the object's own list,
+  ignoring inheritance. This method returns nil if no matching item is
+  found. If :own-finder is nil (the default), no own-finder method is
+  defined.
 
 * :adder [default: nil]
 
