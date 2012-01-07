@@ -80,11 +80,11 @@ Each strategy is described in more detail below.
 
 ### :simple ###
 
-Simple inheritance means that when the slot is null, it inherits the
-value from the base object (if there is one). The base object might
-inherit from its own base, so the chain of inheritance will be
-followed until a non-nil value is found, or until an object in the
-chain has no base.
+Simple inheritance means that when the slot is nil or unbound, it
+inherits the value from the base object (if there is one). The base
+object might inherit from its own base, so the chain of inheritance
+will be followed until a non-nil value is found, or until an object in
+the chain has no base.
 
 The simple inheritance strategy may (depending on the keyword args)
 define the following methods:
@@ -109,11 +109,11 @@ The following keyword args are valid for this strategy:
 
 * :reader [default: {the value of :accessor}]
 
-  Name for the method to read the value of the slot. If the slot
-  value is nil, and the object has a base object, this method returns
-  the base object's value of this slot (which may be inherited from
-  the base object's own base object, and so on down the inheritance
-  chain).
+  Name for the method to read the value of the slot. If the slot value
+  is nil or unbound, and the object has a base object, this method
+  returns the base object's value of this slot (which may be inherited
+  from the base object's own base object, and so on down the
+  inheritance chain).
 
   The :reader arg takes precedence over the :accessor arg for the
   purpose of naming the reader method. If :reader is explicitly nil,
@@ -123,8 +123,10 @@ The following keyword args are valid for this strategy:
 
   Name for the method to read the direct value of the slot, without
   checking inheritance. This method always returns the value of the
-  slot, even if the value is nil. If :own-reader is nil (the default),
-  no own-reader method will be defined.
+  object's slot, even if the value is nil. If the slot is unbound,
+  this method signals a unbound-slot error, just like a standard
+  reader. If :own-reader is nil (the default), no own-reader method
+  will be defined.
 
 * :writer [default: (setf {the value of :accessor})]
 
@@ -186,8 +188,9 @@ The following keyword args are valid for this strategy:
 * :own-reader [default: nil]
 
   Name for the method to read the direct value of the slot, without
-  checking inheritance. If :own-reader is nil (the default), no
-  own-reader method will be defined.
+  checking inheritance. If the slot is unbound, this method signals a
+  unbound-slot error, just like a standard reader. If :own-reader is
+  nil (the default), no own-reader method will be defined.
 
 * :writer [default: (setf {the value of :accessor})]
 
@@ -221,8 +224,9 @@ The following keyword args are valid for this strategy:
 * :finder [default: nil]
 
   Name for a method to find a matching item in the object's list,
-  possibly one inherited from the base object. If :finder is nil (the
-  default), no finder method is defined.
+  possibly one inherited from the base object. This method returns nil
+  if no matching item is found. If :finder is nil (the default), no
+  finder method is defined.
 
   The finder method takes two arguments: the object itself, and a
   query. The query is used by the standard #'find function, using the

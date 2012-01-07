@@ -1,7 +1,4 @@
 
-* Make inheritance work when the slot is unbound (as opposed to when
-  it is set to nil)
-
 * More inheritance strategies:
 
   * :concat - simple list (sequence?) concatenation
