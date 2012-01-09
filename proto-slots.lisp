@@ -99,8 +99,7 @@
    'progn
    (when reader
      `(proto-method ,reader ((object ,class))
-          ,(format nil "Returns the object's ~(~A~). If that is nil and the object has a base, returns the ~(~A~)'s ~(~0@*~A~) instead."
-                   (or reader slot-name) base)
+          ,(format nil "Returns the object's ~(~A~). If that is nil and the object has a base, returns the ~(~A~)'s ~(~0@*~A~) instead." reader base)
         (let ((val (slot-value-if-bound object ',slot-name)))
           (if (,base object)
               (or val (,reader (,base object)))
@@ -127,7 +126,7 @@
 
    (when reader
      `(proto-method ,reader ((object ,class))
-          ,(format nil "Return the object's ~(~A~) list, including any inherited from the object's ~(~A~)." (or reader slot-name) base)
+          ,(format nil "Return the object's ~(~A~) list, including any inherited from the object's ~(~A~)." reader base)
         (let ((b (,base object))
               (val (slot-value-if-bound object ',slot-name)))
           (if b
