@@ -4,7 +4,7 @@
   (:export def-proto-slots
            get-strategy add-strategy remove-strategy
            simple unique-merge
-           proto-method))
+           mkmethod))
 
 (in-package proto-slots)
 
@@ -59,7 +59,7 @@
         slot-defs)))
 
 
-(defmacro proto-method (name args docs &body body)
+(defmacro mkmethod (name args docs &body body)
   "Define a generic function if it doesn't already exist, then define
   a method on that generic function. name is the function/method name.
   args are the method args, possibly including specializers. docs is
@@ -98,7 +98,7 @@
   (list
    'progn
    (when reader
-     `(proto-method ,reader ((object ,class))
+     `(mkmethod ,reader ((object ,class))
           ,(format nil "Returns the object's ~(~A~). If that is nil and the object has a base, returns the ~(~A~)'s ~(~0@*~A~) instead." reader base)
         (let ((val (slot-value-if-bound object ',slot-name)))
           (if (,base object)
@@ -125,7 +125,7 @@
    'progn
 
    (when reader
-     `(proto-method ,reader ((object ,class))
+     `(mkmethod ,reader ((object ,class))
           ,(format nil "Return the object's ~(~A~) list, including any inherited from the object's ~(~A~)." reader base)
         (let ((b (,base object))
               (val (slot-value-if-bound object ',slot-name)))
@@ -134,7 +134,7 @@
               val))))
 
    (when own-finder
-     `(proto-method ,own-finder ((object ,class) query)
+     `(mkmethod ,own-finder ((object ,class) query)
           ,(format nil "Find and return the first matching item in the object's own ~(~A~) list, NOT including those inherited from the object's ~(~A~). Return nil if there is no match." (or reader slot-name) base)
         (if (slot-boundp object ',slot-name)
             (find query (slot-value object ',slot-name)
@@ -142,7 +142,7 @@
             nil)))
 
    (when finder
-     `(proto-method ,finder ((object ,class) query)
+     `(mkmethod ,finder ((object ,class) query)
           ,(format nil "Find and return the first matching item from the object's ~(~A~) list, including those inherited from the object's ~(~A~). Return nil if there is no match." (or reader slot-name) base)
         (or (and (slot-boundp object ',slot-name)
                  (find query (slot-value object ',slot-name)
@@ -150,7 +150,7 @@
             (,finder (,base object) query))))
 
    (when adder
-     `(proto-method ,adder ((object ,class) new-item)
+     `(mkmethod ,adder ((object ,class) new-item)
           ,(format nil "Add the given item to the object's own ~(~A~) reader, NOT including those inherited from the object's ~(~A~). If the list already contains an item that matches the given item, the existing item will be removed before adding the given item." (or reader slot-name) base)
         (setf (slot-value object ',slot-name)
               (union (slot-value-if-bound object ',slot-name)
