@@ -43,10 +43,9 @@
     (slot-name strategy &rest strategy-keyword-args)
   Available strategies and their valid keyword args are:
     :simple
-      :base :accessor :reader :own-reader :writer
+      :base :reader
     :unique-merge
-      :base :accessor :reader :own-reader :writer
-      :test :key :finder :own-finder :adder
+      :base :reader :test :key :adder :finder :own-finder
   See the proto-slots README for details."
   `(progn
      ,@(mapcar
@@ -82,9 +81,7 @@
 (add-strategy :simple 'simple)
 
 (defun simple
-    (class slot-name &key
-     base (accessor slot-name) (reader accessor) own-reader
-     (writer (and accessor (list 'setf accessor))))
+    (class slot-name &key base (reader slot-name))
   "Implements the :simple strategy for def-proto-slots."
 
   (unless base
@@ -92,11 +89,6 @@
 
   (list
    'progn
-   (when own-reader
-     `(proto-method ,own-reader ((object ,class))
-          ,(format nil "Returns the object's own ~(~A~), even if it is nil, ignoring inheritence." (or reader slot-name))
-        (slot-value object ',slot-name)))
-
    (when reader
      `(proto-method ,reader ((object ,class))
           ,(format nil "Returns the object's ~(~A~). If that is nil and the object has a base, returns the ~(~A~)'s ~(~0@*~A~) instead."
@@ -105,13 +97,7 @@
                         (slot-value object ',slot-name))))
           (if (,base object)
               (or val (,reader (,base object)))
-              val))))
-
-   (when writer
-     `(proto-method ,writer (value (object ,class))
-          ,(format nil "Set the object's own ~(~A~)."
-                   (or reader slot-name))
-        (setf (slot-value object ',slot-name) value)))))
+              val))))))
 
 
 
@@ -123,9 +109,7 @@
 
 (defun unique-merge
     (class slot-name &key
-     base finder own-finder adder key test
-     (accessor slot-name) (reader accessor) own-reader
-     (writer (and accessor (list 'setf accessor))))
+     base (reader slot-name) finder own-finder adder key test)
   "Implements the :unique-merge strategy for def-proto-slots."
 
   (unless base
@@ -133,11 +117,6 @@
 
   (list
    'progn
-
-   (when own-reader
-     `(proto-method ,own-reader ((object ,class))
-          ,(format nil "Return the object's own ~(~A~) list, NOT including those inherited from the object's ~(~A~)." (or reader slot-name) base)
-        (slot-value object ',slot-name)))
 
    (when reader
      `(proto-method ,reader ((object ,class))
@@ -148,11 +127,6 @@
           (if b
               (union (,reader b) val :key ,key :test ,test)
               val))))
-
-   (when writer
-     `(proto-method ,writer (value (object ,class))
-          ,(format nil "Set the object's own ~(~A~) list, NOT including those inherited from the object's ~(~A~)." (or reader slot-name) base)
-        (setf (slot-value object ',slot-name) value)))
 
    (when own-finder
      `(proto-method ,own-finder ((object ,class) query)

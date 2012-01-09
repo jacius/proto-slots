@@ -49,15 +49,17 @@ define prototypal accessors for two of its slots:
               :reader id
               :documentation "Per-instance unique ID. Not inherited.")
        (name  :initform nil :initarg :name
+              :accessor own-name
               :documentation "Name string. Inherited if nil.")
        (items :initform (list) :initarg :items
+              :accessor own-items
               :documentation "List of items. Merged by name.")))
 
     (def-proto-slots thing
-      ((name :simple :base base)
-       (items :unique-merge :base base
-              :adder add-item :finder find-item
-              :key #'name :test #'string=)))
+      ((name :simple :base base :reader name)
+       (items :unique-merge :base base :reader items
+              :key #'name :test #'string= :adder add-item
+              :finder find-item :own-finder find-own-item)))
 
 
 ## Inheritance strategies ##
@@ -72,10 +74,7 @@ Each strategy implements a different style of inheritance:
   arguments:
 
   * :base - Func name to get the base object. Required!
-  * :accessor - Easy way to specify func name for reader and writer.
   * :reader - Func name to get slot value, with inheritance.
-  * :own-reader - Func name to get slot value, no inheritance.
-  * :writer - Func name to set slot value.
 
 * :unique-merge
 
@@ -84,10 +83,7 @@ Each strategy implements a different style of inheritance:
   This strategy accepts the following keyword arguments:
 
   * :base - Func name to get the base object. Required!
-  * :accessor - Easy way to specify func name for reader and writer.
   * :reader - Func name to get slot value, with inheritance.
-  * :own-reader - Func name to get slot value, no inheritance.
-  * :writer - Func name to set slot value.
   * :test - Func to test whether two items match. Default #'eql.
   * :key - Func to call on items before testing for match.
   * :finder - Func name to find matching item, with inheritance.
@@ -112,13 +108,6 @@ The following keyword args are valid for this strategy:
   Name of the function to call on the object to get its base object.
   This arg is required!
 
-* :accessor [default: {the slot-name}]
-
-  Name for reader and writer methods. See :reader and :writer below.
-  This defaults to the slot name, so you only have to give :accessor,
-  :reader, or :writer if you want them to have a different name than
-  the slot.
-
 * :reader [default: {the value of :accessor}]
 
   Name for the method to read the value of the slot. If the slot value
@@ -127,28 +116,7 @@ The following keyword args are valid for this strategy:
   from the base object's own base object, and so on down the
   inheritance chain).
 
-  The :reader arg takes precedence over the :accessor arg for the
-  purpose of naming the reader method. If :reader is explicitly nil,
-  no reader method will be defined.
-
-* :own-reader [default: nil]
-
-  Name for the method to read the direct value of the slot, without
-  checking inheritance. This method always returns the value of the
-  object's slot, even if the value is nil. If the slot is unbound,
-  this method signals a unbound-slot error, just like a standard
-  reader. If :own-reader is nil (the default), no own-reader method
-  will be defined.
-
-* :writer [default: (setf {the value of :accessor})]
-
-  Name for the method to replace (i.e. setf) the value of the slot.
-  This affects only the object it's called on, it never affects the
-  base object.
-
-  The :writer arg takes precedence over the :accessor arg for the
-  purpose of naming the writer methods. If :writer is explicitly nil,
-  no writer method will be defined.
+  If :reader is explicitly nil, no reader method will be defined.
 
 
 ### :unique-merge ###
@@ -165,13 +133,6 @@ The following keyword args are valid for this strategy:
   Name of the function to call on the object to get its base object.
   This arg is required!
 
-* :accessor [default: {the slot-name}]
-
-  Name for reader and writer methods. See :reader and :writer below.
-  This defaults to the slot name, so you only have to give :accessor,
-  :reader, or :writer if you want them to have a different name than
-  the slot.
-
 * :reader [default: {the value of :accessor}]
 
   Name for the method to read the value of the slot, possibly
@@ -183,32 +144,12 @@ The following keyword args are valid for this strategy:
   provided for the :test and :key args are used to check whether
   items match, a la the standard #'union function.
 
-  The :reader arg takes precedence over the :accessor arg for the
-  purpose of naming the reader method. If :reader is explicitly nil,
-  no reader method will be defined.
-
-* :own-reader [default: nil]
-
-  Name for the method to read the direct value of the slot, without
-  checking inheritance. If the slot is unbound, this method signals a
-  unbound-slot error, just like a standard reader. If :own-reader is
-  nil (the default), no own-reader method will be defined.
-
-* :writer [default: (setf {the value of :accessor})]
-
-  Name for the method to write (i.e. setf) the value of the slot. The
-  new value must be a list, or things will break later on. This
-  method affects only the object it's called on, it never affects the
-  base object.
-
-  The :writer arg takes precedence over the :accessor arg for the
-  purpose of naming the writer method. If :writer is explicitly nil,
-  no writer method will be defined.
+  If :reader is explicitly nil, no reader method will be defined.
 
 * :test [default: #'eql]
 
-  A function used (together with :key) to test for matches. It has
-  the same semantics as the :test keyword arg to the standard
+  An existing function used (together with :key) to test for matches.
+  It has the same semantics as the :test keyword arg to the standard
   functions #'find, #'union, etc.
 
   In :reader, it is used to compare two items to check whether an
@@ -219,16 +160,16 @@ The following keyword args are valid for this strategy:
 
 * :key [default: #'identity]
 
-  A function to apply to each item before calling the :test function
-  to check for a match. It has the same semantics as the :key keyword
-  arg to the standard functions #'find, #'union, etc.
+  An existing function to apply to each item before calling the :test
+  function to check for a match. It has the same semantics as the :key
+  keyword arg to the standard functions #'find, #'union, etc.
 
 * :finder [default: nil]
 
-  Name for a method to find a matching item in the object's list,
-  possibly one inherited from the base object. This method returns nil
-  if no matching item is found. If :finder is nil (the default), no
-  finder method is defined.
+  Name for a method to find the first matching item in the object's
+  list, possibly one inherited from the base object. This method
+  returns nil if no matching item is found. If :finder is nil (the
+  default), no finder method is defined.
 
   The finder method takes two arguments: the object itself, and a
   query. The query is used by the standard #'find function, using the
@@ -239,10 +180,10 @@ The following keyword args are valid for this strategy:
 
 * :own-finder [default: nil]
 
-  Name for a method to find a matching item in the object's own list,
-  ignoring inheritance. This method returns nil if no matching item is
-  found. If :own-finder is nil (the default), no own-finder method is
-  defined.
+  Name for a method to find the first matching item in the object's
+  own list, ignoring inheritance. This method returns nil if no
+  matching item is found. If :own-finder is nil (the default), no
+  own-finder method is defined.
 
 * :adder [default: nil]
 
