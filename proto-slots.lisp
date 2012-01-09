@@ -74,6 +74,14 @@
        (defmethod ,name ,args ,@body))))
 
 
+(declaim (inline slot-value-if-bound))
+(defun slot-value-if-bound (object slot-name)
+  "Return the slot value if the slot is bound, or nil otherwise."
+  (if (slot-boundp object slot-name)
+      (slot-value object slot-name)
+      nil))
+
+
 ;;;;;;;;;;;;
 ;; SIMPLE ;;
 ;;;;;;;;;;;;
@@ -93,8 +101,7 @@
      `(proto-method ,reader ((object ,class))
           ,(format nil "Returns the object's ~(~A~). If that is nil and the object has a base, returns the ~(~A~)'s ~(~0@*~A~) instead."
                    (or reader slot-name) base)
-        (let ((val (and (slot-boundp object ',slot-name)
-                        (slot-value object ',slot-name))))
+        (let ((val (slot-value-if-bound object ',slot-name)))
           (if (,base object)
               (or val (,reader (,base object)))
               val))))))
@@ -122,8 +129,7 @@
      `(proto-method ,reader ((object ,class))
           ,(format nil "Return the object's ~(~A~) list, including any inherited from the object's ~(~A~)." (or reader slot-name) base)
         (let ((b (,base object))
-              (val (and (slot-boundp object ',slot-name)
-                        (slot-value object ',slot-name))))
+              (val (slot-value-if-bound object ',slot-name)))
           (if b
               (union (,reader b) val :key ,key :test ,test)
               val))))
@@ -148,7 +154,6 @@
      `(proto-method ,adder ((object ,class) new-item)
           ,(format nil "Add the given item to the object's own ~(~A~) reader, NOT including those inherited from the object's ~(~A~). If the list already contains an item that matches the given item, the existing item will be removed before adding the given item." (or reader slot-name) base)
         (setf (slot-value object ',slot-name)
-              (union (and (slot-boundp object ',slot-name)
-                          (slot-value object ',slot-name))
+              (union (slot-value-if-bound object ',slot-name)
                      (list new-item)
                      :key ,key :test ,test))))))
