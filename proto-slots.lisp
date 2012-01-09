@@ -3,7 +3,8 @@
   (:use :cl)
   (:export def-proto-slots
            get-strategy add-strategy remove-strategy
-           simple unique-merge))
+           simple unique-merge
+           proto-method))
 
 (in-package proto-slots)
 
@@ -59,7 +60,7 @@
         slot-defs)))
 
 
-(defmacro %proto-method (name args docs &body body)
+(defmacro proto-method (name args docs &body body)
   "Define a generic function if it doesn't already exist, then define
   a method on that generic function. name is the function/method name.
   args are the method args, possibly including specializers. docs is
@@ -92,12 +93,12 @@
   (list
    'progn
    (when own-reader
-     `(%proto-method ,own-reader ((object ,class))
+     `(proto-method ,own-reader ((object ,class))
           ,(format nil "Returns the object's own ~(~A~), even if it is nil, ignoring inheritence." (or reader slot-name))
         (slot-value object ',slot-name)))
 
    (when reader
-     `(%proto-method ,reader ((object ,class))
+     `(proto-method ,reader ((object ,class))
           ,(format nil "Returns the object's ~(~A~). If that is nil and the object has a base, returns the ~(~A~)'s ~(~0@*~A~) instead."
                    (or reader slot-name) base)
         (let ((val (and (slot-boundp object ',slot-name)
@@ -107,7 +108,7 @@
               val))))
 
    (when writer
-     `(%proto-method ,writer (value (object ,class))
+     `(proto-method ,writer (value (object ,class))
           ,(format nil "Set the object's own ~(~A~)."
                    (or reader slot-name))
         (setf (slot-value object ',slot-name) value)))))
@@ -134,12 +135,12 @@
    'progn
 
    (when own-reader
-     `(%proto-method ,own-reader ((object ,class))
+     `(proto-method ,own-reader ((object ,class))
           ,(format nil "Return the object's own ~(~A~) list, NOT including those inherited from the object's ~(~A~)." (or reader slot-name) base)
         (slot-value object ',slot-name)))
 
    (when reader
-     `(%proto-method ,reader ((object ,class))
+     `(proto-method ,reader ((object ,class))
           ,(format nil "Return the object's ~(~A~) list, including any inherited from the object's ~(~A~)." (or reader slot-name) base)
         (let ((b (,base object))
               (val (and (slot-boundp object ',slot-name)
@@ -149,12 +150,12 @@
               val))))
 
    (when writer
-     `(%proto-method ,writer (value (object ,class))
+     `(proto-method ,writer (value (object ,class))
           ,(format nil "Set the object's own ~(~A~) list, NOT including those inherited from the object's ~(~A~)." (or reader slot-name) base)
         (setf (slot-value object ',slot-name) value)))
 
    (when own-finder
-     `(%proto-method ,own-finder ((object ,class) query)
+     `(proto-method ,own-finder ((object ,class) query)
           ,(format nil "Find and return the first matching item in the object's own ~(~A~) list, NOT including those inherited from the object's ~(~A~). Return nil if there is no match." (or reader slot-name) base)
         (if (slot-boundp object ',slot-name)
             (find query (slot-value object ',slot-name)
@@ -162,7 +163,7 @@
             nil)))
 
    (when finder
-     `(%proto-method ,finder ((object ,class) query)
+     `(proto-method ,finder ((object ,class) query)
           ,(format nil "Find and return the first matching item from the object's ~(~A~) list, including those inherited from the object's ~(~A~). Return nil if there is no match." (or reader slot-name) base)
         (or (and (slot-boundp object ',slot-name)
                  (find query (slot-value object ',slot-name)
@@ -170,7 +171,7 @@
             (,finder (,base object) query))))
 
    (when adder
-     `(%proto-method ,adder ((object ,class) new-item)
+     `(proto-method ,adder ((object ,class) new-item)
           ,(format nil "Add the given item to the object's own ~(~A~) reader, NOT including those inherited from the object's ~(~A~). If the list already contains an item that matches the given item, the existing item will be removed before adding the given item." (or reader slot-name) base)
         (setf (slot-value object ',slot-name)
               (union (and (slot-boundp object ',slot-name)
