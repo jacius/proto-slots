@@ -34,12 +34,7 @@
   "Define prototypal accessor methods on a class' slots.
   Each slot-def is a list like this:
     (slot-name strategy &rest strategy-keyword-args)
-  Available strategies and their valid keyword args are:
-    :simple
-      :base :reader
-    :unique-merge
-      :base :reader :test :key :adder :finder :own-finder
-  See the proto-slots README for details."
+  See the proto-slots README for more information."
   `(progn
      ,@(mapcar
         (lambda (slot-def)
