@@ -1,4 +1,4 @@
-# Extending proto-slots #
+# Adding new proto-slots strategies #
 
 This guide explains how to extend proto-slots by adding new
 inheritance strategies.
