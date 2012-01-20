@@ -92,3 +92,6 @@ Each strategy implements a different style of inheritance:
 
 For more details about each strategy, refer to the documentation in
 the `docs` directory.
+
+You can also add your own inheritance strategies. Refer to the
+`docs/adding-new-strategies.md` file for more information.
