@@ -67,7 +67,7 @@ The following keyword args are valid for this strategy:
 * :adder [default: nil]
 
   Name for a method to add a new item to the object's own list. If
-  :adder is nil (the default), no finder method is defined.
+  :adder is nil (the default), no adder method is defined.
 
   If any item in the object's own list matches the new item, that
   item is removed before adding the new item. The functions provided
