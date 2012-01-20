@@ -9,6 +9,10 @@
   NOTE: Data structure may change in a future version.")
 
 
+(defun all-strategies ()
+  "Returns a list containing the names of all available strategies."
+  (mapcar #'car *strategies*))
+
 (defun get-strategy (name)
   "Return the function associated with the given strategy name, or nil
   if that strategy is not registered."

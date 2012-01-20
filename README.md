@@ -64,7 +64,7 @@ define prototypal accessors for two of its slots:
 
 ## Inheritance strategies ##
 
-The following inheritance strategies are currently available.
+The following inheritance strategies are standard in proto-slots.
 Each strategy implements a different style of inheritance:
 
 * :simple
@@ -106,3 +106,6 @@ the `docs` directory.
 
 You can also add your own inheritance strategies. Refer to the
 `docs/adding-new-strategies.md` file for more information.
+
+You can use the proto-slots:all-strategies function to get a list
+of all registered strategies, including non-standard ones.

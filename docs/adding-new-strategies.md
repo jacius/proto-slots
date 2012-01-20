@@ -18,7 +18,8 @@ implements the strategy.
 
 The proto-slots:get-strategy and proto-slots:remove-strategy functions
 can be used to query or remove a strategy, respectively. They each
-take one parameter: a strategy name.
+take one parameter: a strategy name. The proto-slots:all-strategies
+function can be used to get the names of all registered strategies.
 
 
 ## Writing Strategy Functions ##
