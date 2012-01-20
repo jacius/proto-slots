@@ -11,4 +11,5 @@
             :depends-on ("proto-slots")
             :components
             ((:file "simple")
-             (:file "unique-merge")))))
+             (:file "unique-merge")
+             (:file "hash-merge")))))

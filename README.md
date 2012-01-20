@@ -73,7 +73,7 @@ Each strategy implements a different style of inheritance:
   from the base object. This strategy accepts the following keyword
   arguments:
 
-  * :base - Func name to get the base object. Required!
+  * :base - Func to get the base object. Required!
   * :reader - Func name to get slot value, with inheritance.
 
 * :unique-merge
@@ -82,13 +82,24 @@ Each strategy implements a different style of inheritance:
   such that all items are unique (according to the test functions).
   This strategy accepts the following keyword arguments:
 
-  * :base - Func name to get the base object. Required!
+  * :base - Func to get the base object. Required!
   * :reader - Func name to get slot value, with inheritance.
   * :test - Func to test whether two items match. Default #'eql.
   * :key - Func to call on items before testing for match.
   * :finder - Func name to find matching item, with inheritance.
   * :own-finder - Func name to find matching item, no inheritance.
   * :adder - Func name to add an item to the list.
+
+* :hash-merge
+
+  The slot holds a hash table, which inherits entries for any keys it
+  doesn't already have. This strategy accepts the following keyword
+  arguments:
+
+  * :base - Func to get the base object. Required!
+  * :reader - Func name to return the hash table, with inheritance.
+  * :getter - Func name to look up a key's value, with inheritance.
+  * :setter - Func name to set a key's value.
 
 For more details about each strategy, refer to the documentation in
 the `docs` directory.
