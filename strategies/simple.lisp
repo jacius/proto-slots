@@ -4,7 +4,14 @@
 
 (defun simple
     (class slot-name &key base (reader slot-name))
-  "Implements the :simple strategy for def-proto-slots."
+  "Implements the :simple strategy for def-proto-slots.
+
+  The slot holds any value. When it is nil, the value is inherited
+  from the base object. This strategy accepts the following keyword
+  arguments:
+
+  * :base - Func to get the base object. Required!
+  * :reader - Func name to get slot value, with inheritance."
 
   (unless base
     (error "The :base keyword argument is required."))

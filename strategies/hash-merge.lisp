@@ -19,7 +19,16 @@
 (defun hash-merge
     (class slot-name &key
      base (reader slot-name) getter setter remover)
-  "Implements the :hash-merge strategy for def-proto-slots."
+  "Implements the :hash-merge strategy for def-proto-slots.
+
+  The slot holds a hash table, which inherits entries for any keys it
+  doesn't already have. This strategy accepts the following keyword
+  arguments:
+
+  * :base - Func to get the base object. Required!
+  * :reader - Func name to return the hash table, with inheritance.
+  * :getter - Func name to look up a key's value, with inheritance.
+  * :setter - Func name to set a key's value."
 
   (unless base
     (error "The :base keyword argument is required."))

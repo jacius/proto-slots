@@ -5,7 +5,19 @@
 (defun unique-merge
     (class slot-name &key
      base (reader slot-name) finder own-finder adder key test)
-  "Implements the :unique-merge strategy for def-proto-slots."
+  "Implements the :unique-merge strategy for def-proto-slots.
+
+  The slot holds a list, which is merged with the base object's list
+  such that all items are unique (according to the test functions).
+  This strategy accepts the following keyword arguments:
+
+  * :base - Func to get the base object. Required!
+  * :reader - Func name to get slot value, with inheritance.
+  * :test - Func to test whether two items match. Default #'eql.
+  * :key - Func to call on items before testing for match.
+  * :finder - Func name to find matching item, with inheritance.
+  * :own-finder - Func name to find matching item, no inheritance.
+  * :adder - Func name to add an item to the list."
 
   (unless base
     (error "The :base keyword argument is required."))
